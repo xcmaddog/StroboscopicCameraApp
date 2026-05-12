@@ -26,6 +26,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         camerawidget.h camerawidget.cpp
         strobewidget.h strobewidget.cpp
         cameracontroller.h cameracontroller.cpp
+        cameraworker.h cameraworker.cpp
+        liveviewwidget.h liveviewwidget.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET IDSStrobeCameraTest APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
