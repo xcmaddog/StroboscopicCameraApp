@@ -22,8 +22,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 # Default for a standard IDS peak install on Windows:
 set(IDS_PEAK_ROOT "C:/Program Files/IDS/ids_peak" CACHE PATH "IDS peak SDK root")
 
-set(IDS_PEAK_INCLUDE "${IDS_PEAK_ROOT}/sdk/api/include")
-set(IDS_PEAK_LIB_DIR "${IDS_PEAK_ROOT}/sdk/api/lib/x86_64")
+set(IDS_PEAK_INCLUDE "${IDS_PEAK_ROOT}/generic_sdk/api/include")
+set(IDS_PEAK_LIB_DIR "${IDS_PEAK_ROOT}/generic_sdk/api/lib/x86_64")
+set(IDS_PEAK_IPL_LIB_DIR "${IDS_PEAK_ROOT}/generic_sdk/ipl/lib/x86_64")
+set(IDS_PEAK_IPL_INCLUDE "${IDS_PEAK_ROOT}/generic_sdk/ipl/include")
 
 find_library(IDS_PEAK_LIB
     NAMES ids_peak
@@ -32,7 +34,7 @@ find_library(IDS_PEAK_LIB
 )
 find_library(IDS_PEAK_IPL_LIB
     NAMES ids_peak_ipl
-    PATHS "${IDS_PEAK_LIB_DIR}"
+    PATHS "${IDS_PEAK_IPL_LIB_DIR}"
     REQUIRED
 )
 
@@ -42,6 +44,21 @@ set(PROJECT_SOURCES
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+
+    cameracontroller.cpp
+    cameracontroller.h
+
+    camerawidget.cpp
+    camerawidget.h
+
+    cameraworker.cpp
+    cameraworker.h
+
+    liveviewwidget.cpp
+    liveviewwidget.h
+
+    strobewidget.cpp
+    strobewidget.h
 )
 
 # ── Executable ────────────────────────────────────────────────────────────────
@@ -49,11 +66,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(IDSStrobeCameraTest
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        camerawidget.h      camerawidget.cpp
-        strobewidget.h      strobewidget.cpp
-        cameracontroller.h  cameracontroller.cpp
-        cameraworker.h      cameraworker.cpp
-        liveviewwidget.h    liveviewwidget.cpp
     )
 else()
     if(ANDROID)
@@ -70,6 +82,8 @@ endif()
 # ── Include paths & linking ───────────────────────────────────────────────────
 target_include_directories(IDSStrobeCameraTest PRIVATE
     "${IDS_PEAK_INCLUDE}"
+    "${IDS_PEAK_IPL_INCLUDE}"
+    "${IDS_PEAK_ROOT}/common/include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 

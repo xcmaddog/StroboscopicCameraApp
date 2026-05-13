@@ -1,8 +1,8 @@
 #include "CameraController.h"
 
 // All IDS peak SDK headers are confined to this translation unit.
-#include <ids_peak/ids_peak.hpp>
-#include <ids_peak_ipl/ids_peak_ipl.hpp>
+#include <peak/peak.hpp>
+#include <peak_ipl/peak_ipl.hpp>
 
 #include <QImage>
 
