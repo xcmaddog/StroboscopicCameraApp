@@ -59,11 +59,14 @@ void StrobeWidget::buildUI()
         form->addRow("Trigger delay:",   m_triggerDelaySpin);
         outerLayout->addWidget(grp);
 
-        connect(m_triggerSourceCombo, &QComboBox::currentIndexChanged,
+        connect(m_triggerSourceCombo,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &StrobeWidget::onTriggerSourceChanged);
-        connect(m_triggerDividerSpin, &QSpinBox::valueChanged,
+        connect(m_triggerDividerSpin,
+                QOverload<int>::of(&QSpinBox::valueChanged),
                 this, &StrobeWidget::onTriggerDividerChanged);
-        connect(m_triggerDelaySpin,   &QDoubleSpinBox::valueChanged,
+        connect(m_triggerDelaySpin,
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, &StrobeWidget::onTriggerDelayChanged);
     }
 
@@ -102,11 +105,14 @@ void StrobeWidget::buildUI()
         form->addRow("Flash duration:",    m_flashDurationSpin);
         outerLayout->addWidget(grp);
 
-        connect(m_flashRefCombo,       &QComboBox::currentIndexChanged,
+        connect(m_flashRefCombo,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &StrobeWidget::onFlashReferenceChanged);
-        connect(m_flashStartDelaySpin, &QDoubleSpinBox::valueChanged,
+        connect(m_flashStartDelaySpin,
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, &StrobeWidget::onFlashStartDelayChanged);
-        connect(m_flashDurationSpin,   &QDoubleSpinBox::valueChanged,
+        connect(m_flashDurationSpin,
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, &StrobeWidget::onFlashDurationChanged);
     }
 

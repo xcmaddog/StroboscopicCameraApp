@@ -26,6 +26,8 @@ set(IDS_PEAK_INCLUDE "${IDS_PEAK_ROOT}/generic_sdk/api/include")
 set(IDS_PEAK_LIB_DIR "${IDS_PEAK_ROOT}/generic_sdk/api/lib/x86_64")
 set(IDS_PEAK_IPL_LIB_DIR "${IDS_PEAK_ROOT}/generic_sdk/ipl/lib/x86_64")
 set(IDS_PEAK_IPL_INCLUDE "${IDS_PEAK_ROOT}/generic_sdk/ipl/include")
+set(IDS_PEAK_BIN_DIR "${IDS_PEAK_ROOT}/generic_sdk/api/bin/x86_64")
+set(IDS_PEAK_IPL_BIN_DIR "${IDS_PEAK_ROOT}/generic_sdk/ipl/bin/x86_64")
 
 find_library(IDS_PEAK_LIB
     NAMES ids_peak
@@ -96,13 +98,16 @@ target_link_libraries(IDSStrobeCameraTest PRIVATE
 # ── Windows: copy IDS peak DLLs next to the executable ───────────────────────
 # Without this the exe won't launch unless the IDS peak bin dir is on PATH.
 if(WIN32)
-    add_custom_command(TARGET IDSStrobeCameraTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${IDS_PEAK_LIB_DIR}/ids_peak.dll"
-            "${IDS_PEAK_LIB_DIR}/ids_peak_ipl.dll"
-            $<TARGET_FILE_DIR:IDSStrobeCameraTest>
-        COMMENT "Copying IDS peak DLLs to output directory"
-    )
+    set(PEAK_DLL "${IDS_PEAK_BIN_DIR}/ids_peak.dll")
+    set(PEAK_IPL_DLL "${IDS_PEAK_IPL_BIN_DIR}/ids_peak_ipl.dll")
+
+    if(EXISTS "${PEAK_DLL}")
+        file(COPY "${PEAK_DLL}" DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    endif()
+
+    if(EXISTS "${PEAK_IPL_DLL}")
+        file(COPY "${PEAK_IPL_DLL}" DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    endif()
 endif()
 
 # ── Bundle / install settings (from Qt Creator template) ──────────────────────

@@ -45,7 +45,8 @@ void CameraWidget::buildUI()
         form->addRow("Range:", m_exposureRange);
         outerLayout->addWidget(grp);
 
-        connect(m_exposureSpin, &QDoubleSpinBox::valueChanged,
+        connect(m_exposureSpin,
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, &CameraWidget::onExposureChanged);
     }
 
@@ -66,7 +67,8 @@ void CameraWidget::buildUI()
         form->addRow("Range:", m_gainRange);
         outerLayout->addWidget(grp);
 
-        connect(m_gainSpin, &QDoubleSpinBox::valueChanged,
+        connect(m_gainSpin,
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, &CameraWidget::onGainChanged);
     }
 
@@ -79,7 +81,8 @@ void CameraWidget::buildUI()
         form->addRow("Format:", m_pixelFmtCombo);
         outerLayout->addWidget(grp);
 
-        connect(m_pixelFmtCombo, &QComboBox::currentIndexChanged,
+        connect(m_pixelFmtCombo,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &CameraWidget::onPixelFormatChanged);
     }
 
@@ -148,9 +151,11 @@ void CameraWidget::buildUI()
         form->addRow("Vertical:",   m_decimVCombo);
         outerLayout->addWidget(grp);
 
-        connect(m_decimHCombo, &QComboBox::currentIndexChanged,
+        connect(m_decimHCombo,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &CameraWidget::onDecimationHChanged);
-        connect(m_decimVCombo, &QComboBox::currentIndexChanged,
+        connect(m_decimVCombo,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &CameraWidget::onDecimationVChanged);
     }
 
