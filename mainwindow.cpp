@@ -104,41 +104,37 @@ void MainWindow::buildUI()
     mainLayout->setSpacing(4);
     setCentralWidget(central);
 
-    // Live view takes the majority of vertical space.
+    // Horizontal splitter: live view on the left, controls on the right.
+    auto* mainSplitter = new QSplitter(Qt::Horizontal, this);
+
+    // Live view fills the left side.
     m_liveView = new LiveViewWidget(this);
 
-    // The two control panels sit side by side in a horizontal splitter.
-    auto* controlSplitter = new QSplitter(Qt::Horizontal, this);
+    // Controls stacked vertically on the right, in a single scroll area.
+    m_cameraWidget = new CameraWidget(m_controller.get(), this);
+    m_strobeWidget = new StrobeWidget(m_controller.get(), this);
 
-    m_cameraWidget  = new CameraWidget(m_controller.get(), this);
-    auto* camScroll = new QScrollArea(this);
-    camScroll->setWidget(m_cameraWidget);
-    camScroll->setWidgetResizable(true);
-    camScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    camScroll->setMinimumWidth(260);
+    auto* controlContainer = new QWidget(this);
+    auto* controlLayout    = new QVBoxLayout(controlContainer);
+    controlLayout->setContentsMargins(0, 0, 0, 0);
+    controlLayout->setSpacing(4);
+    controlLayout->addWidget(m_cameraWidget);
+    controlLayout->addWidget(m_strobeWidget);
+    controlLayout->addStretch();
 
-    m_strobeWidget     = new StrobeWidget(m_controller.get(), this);
-    auto* strobeScroll = new QScrollArea(this);
-    strobeScroll->setWidget(m_strobeWidget);
-    strobeScroll->setWidgetResizable(true);
-    strobeScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    strobeScroll->setMinimumWidth(280);
+    auto* controlScroll = new QScrollArea(this);
+    controlScroll->setWidget(controlContainer);
+    controlScroll->setWidgetResizable(true);
+    controlScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    controlScroll->setFixedWidth(300);
 
-    controlSplitter->addWidget(camScroll);
-    controlSplitter->addWidget(strobeScroll);
-    controlSplitter->setStretchFactor(0, 1);
-    controlSplitter->setStretchFactor(1, 1);
+    mainSplitter->addWidget(m_liveView);
+    mainSplitter->addWidget(controlScroll);
+    mainSplitter->setStretchFactor(0, 1);  // live view stretches
+    mainSplitter->setStretchFactor(1, 0);  // controls panel stays fixed
 
-    // Vertical splitter: live view on top (3 parts), controls on bottom (1 part).
-    auto* vertSplitter = new QSplitter(Qt::Vertical, this);
-    vertSplitter->addWidget(m_liveView);
-    vertSplitter->addWidget(controlSplitter);
-    vertSplitter->setStretchFactor(0, 3);
-    vertSplitter->setStretchFactor(1, 1);
+    mainLayout->addWidget(mainSplitter);
 
-    mainLayout->addWidget(vertSplitter);
-
-    // Controls start disabled — enabled once the camera confirms it is open.
     m_cameraWidget->setControlsEnabled(false);
     m_strobeWidget->setParameterControlsEnabled(false);
 }

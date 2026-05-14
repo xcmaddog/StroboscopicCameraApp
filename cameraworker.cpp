@@ -1,5 +1,6 @@
 #include "CameraWorker.h"
 #include "CameraController.h"
+#include <QCoreApplication>
 
 CameraWorker::CameraWorker(CameraController* controller, QObject* parent)
     : QObject(parent)
@@ -42,12 +43,12 @@ void CameraWorker::startAcquisition()
     m_running = true;
     emit acquisitionStarted();
 
-    // Tight acquisition loop — runs on the worker thread.
-    // acquireFrame() blocks up to 2 s waiting for a buffer; if none
-    // arrives it returns a null QImage and we loop again, which lets
-    // m_running checks remain responsive.
     while (m_running) {
-        QImage frame = m_controller->acquireFrame(2000);
+        // Process any pending slot calls (e.g. stopAcquisition()) before
+        // blocking on the next frame.
+        QCoreApplication::processEvents();
+
+        QImage frame = m_controller->acquireFrame(200);  // shorter timeout so we loop faster
         if (!frame.isNull())
             emit frameReady(std::move(frame));
         else if (!m_controller->errorMessage().empty())

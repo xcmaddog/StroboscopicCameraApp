@@ -151,11 +151,21 @@ CameraController::~CameraController()
 bool CameraController::open()
 {
     try {
-        // Initialize library (safe to call multiple times; ref-counted).
         peak::Library::Initialize();
-        m_impl->libraryInitialized = true;
+    } catch (const peak::core::Exception& e) {
+        m_impl->lastError = std::string("Initialize failed (peak): ") + e.what();
+        return false;
+    } catch (const std::exception& e) {
+        m_impl->lastError = std::string("Initialize failed (std): ") + e.what();
+        return false;
+    } catch (...) {
+        m_impl->lastError = "Initialize failed: unknown exception.";
+        return false;
+    }
 
-        // Enumerate devices.
+    m_impl->libraryInitialized = true;
+
+    try {
         auto& deviceManager = peak::DeviceManager::Instance();
         deviceManager.Update();
 
@@ -164,16 +174,11 @@ bool CameraController::open()
             return false;
         }
 
-        // Open first available device.
-        // For UI (uEye legacy) models the uEye Transport Layer must be
-        // installed and IDS Software Suite 4.95+ must be present.
         m_impl->device = deviceManager.Devices().front()->OpenDevice(
             peak::core::DeviceAccessType::Control);
 
-        // Get the remote device node map (camera registers).
         m_impl->nodeMap = m_impl->device->RemoteDevice()->NodeMaps().front();
 
-        // Open data stream and allocate buffers.
         m_impl->dataStream = m_impl->device->DataStreams().front()->OpenDataStream();
 
         auto payloadSize = getInt(m_impl->nodeMap, "PayloadSize");
@@ -185,8 +190,14 @@ bool CameraController::open()
 
         return true;
 
+    } catch (const peak::core::Exception& e) {
+        m_impl->lastError = std::string("Device open failed (peak): ") + e.what();
+        return false;
     } catch (const std::exception& e) {
-        m_impl->lastError = e.what();
+        m_impl->lastError = std::string("Device open failed (std): ") + e.what();
+        return false;
+    } catch (...) {
+        m_impl->lastError = "Device open failed: unknown exception.";
         return false;
     }
 }
@@ -419,18 +430,20 @@ std::vector<std::string> CameraController::availableTriggerSources() const
 void CameraController::setTriggerDivider(int n)
 {
     try {
-        // TriggerDivider is an IDS extension node (Guru-level visibility).
-        // Ensure TriggerSelector is set first.
         setEnum(m_impl->nodeMap, "TriggerSelector", "ExposureStart");
-        setInt(m_impl->nodeMap,  "TriggerDivider",  static_cast<int64_t>(n));
-    } catch (const std::exception& e) {
-        m_impl->lastError = e.what();
+        setInt(m_impl->nodeMap, "TriggerDivider", static_cast<int64_t>(n));
+    } catch (...) {
+        m_impl->lastError = "TriggerDivider not available on this firmware.";
     }
 }
 
 int CameraController::getTriggerDivider() const
 {
-    return (int)getInt(m_impl->nodeMap, "TriggerDivider");
+    try {
+        return (int)getInt(m_impl->nodeMap, "TriggerDivider");
+    } catch (...) {
+        return 1;  // safe default
+    }
 }
 
 void CameraController::setTriggerDelay(double microseconds)
@@ -445,7 +458,11 @@ void CameraController::setTriggerDelay(double microseconds)
 
 double CameraController::getTriggerDelay() const
 {
-    return getFloat(m_impl->nodeMap, "TriggerDelay");
+    try{
+        return getFloat(m_impl->nodeMap, "TriggerDelay");
+    } catch (...) {
+        return 0.0;
+    }
 }
 
 
@@ -508,12 +525,20 @@ void CameraController::configureFlashOutput(const std::string& flashReference,
 
 double CameraController::getFlashStartDelay() const
 {
-    return getFloat(m_impl->nodeMap, "FlashStartDelay");
+    try{
+        return getFloat(m_impl->nodeMap, "FlashStartDelay");
+    } catch (...) {
+        return 0.0;
+    }
 }
 
 double CameraController::getFlashDuration() const
 {
-    return getFloat(m_impl->nodeMap, "FlashDuration");
+    try {
+        return getFloat(m_impl->nodeMap, "FlashDuration");
+    } catch(...) {
+        return 0.0;
+    }
 }
 
 
